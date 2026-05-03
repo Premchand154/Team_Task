@@ -1,11 +1,6 @@
 from __future__ import annotations
 
 import os
-import sys
-from pathlib import Path
-
-if __package__ in {None, ""}:
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from dotenv import load_dotenv
 from flask import Flask
@@ -20,6 +15,8 @@ def _normalize_database_url(database_url: str | None) -> str:
         return "sqlite:///team_task.db"
     if database_url.startswith("postgres://"):
         return database_url.replace("postgres://", "postgresql+psycopg://", 1)
+    if database_url.startswith("postgresql://") and not database_url.startswith("postgresql+psycopg://"):
+        return database_url.replace("postgresql://", "postgresql+psycopg://", 1)
     return database_url
 
 
@@ -58,7 +55,3 @@ def create_app(test_config: dict | None = None) -> Flask:
         db.create_all()
 
     return app
-
-
-if __name__ == "__main__":
-    create_app().run(host="127.0.0.1", port=8000, debug=True)
