@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="auth-layout">
+  <article class="hero-panel">
+    <p class="eyebrow">Secure access</p>
+    <h1>Track delivery without losing the team rhythm.</h1>
+    <p class="lead">Create projects, assign work, and keep status visible across Admin and Member roles.</p>
+    <ul class="feature-list">
+      <li>Authentication with role-aware access</li>
+      <li>Project and team management</li>
+      <li>Task status, due dates, and overdue tracking</li>
+    </ul>
+  </article>
+
+  <article class="panel form-panel">
+    <div class="panel-heading">
+      <p class="eyebrow">Welcome back</p>
+      <h2>Login</h2>
+    </div>
+    <form method="post" class="stack-form">
+      {{ form.hidden_tag() }}
+      <label>
+        <span>Email</span>
+        {{ form.email(class_='input') }}
+        {% for error in form.email.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </label>
+      <label>
+        <span>Password</span>
+        {{ form.password(class_='input') }}
+        {% for error in form.password.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </label>
+      <button type="submit" class="primary-button">Login</button>
+    </form>
+    <p class="muted-link">No account yet? <a href="{{ url_for('auth.signup') }}">Create one</a></p>
+  </article>
+</section>
+{% endblock %}

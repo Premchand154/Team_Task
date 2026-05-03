@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ title or 'TaskForge' }}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="page-shell">
+    <div class="bg-orb orb-a"></div>
+    <div class="bg-orb orb-b"></div>
+    <header class="topbar">
+      <a class="brand" href="{{ url_for('web.dashboard') if current_user.is_authenticated else url_for('auth.login') }}">
+        <span class="brand-mark"><span class="brand-mark-text">TF</span></span>
+        <span class="brand-copy">
+          <strong>TaskForge</strong>
+          <small>Build projects, ship tasks, track progress</small>
+        </span>
+      </a>
+      <nav class="topnav">
+        {% if current_user.is_authenticated %}
+          <a href="{{ url_for('web.dashboard') }}">Dashboard</a>
+          <a href="{{ url_for('web.projects') }}">Projects</a>
+          <span class="user-chip">{{ current_user.full_name }} · {{ current_user.role|title }}</span>
+          <form method="post" action="{{ url_for('auth.logout') }}" class="inline-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="ghost-button">Logout</button>
+          </form>
+        {% else %}
+          <a href="{{ url_for('auth.login') }}">Login</a>
+          <a href="{{ url_for('auth.signup') }}">Sign up</a>
+        {% endif %}
+      </nav>
+    </header>
+
+    <main class="content-wrap">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <section class="flash-stack">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </section>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</body>
+</html>

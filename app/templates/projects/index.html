@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Project workspace</p>
+    <h1>Projects</h1>
+    <p class="lead">Create a new project, assign an owner, and pull teammates in by email.</p>
+  </div>
+</section>
+
+<section class="content-grid projects-grid">
+  <article class="panel form-panel">
+    <div class="panel-heading">
+      <h2>New project</h2>
+    </div>
+    <form method="post" class="stack-form">
+      {{ form.hidden_tag() }}
+      <label>
+        <span>Project name</span>
+        {{ form.name(class_='input') }}
+        {% for error in form.name.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </label>
+      <label>
+        <span>Description</span>
+        {{ form.description(class_='input textarea', rows='5') }}
+        {% for error in form.description.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </label>
+      <button type="submit" class="primary-button">Create project</button>
+    </form>
+  </article>
+
+  <article class="panel panel-wide">
+    <div class="panel-heading">
+      <h2>All projects</h2>
+    </div>
+    <div class="project-cards">
+      {% for project in projects %}
+        <a class="project-card" href="{{ url_for('web.project_detail', project_id=project.id) }}">
+          <div class="project-card-top">
+            <div>
+              <strong>{{ project.name }}</strong>
+              <p>{{ project.description or 'No description yet.' }}</p>
+            </div>
+            <span class="status-pill status-todo">Open</span>
+          </div>
+          <div class="project-card-meta">
+            <span>{{ project.tasks|length }} tasks</span>
+            <span>{{ project.memberships|length }} members</span>
+            <span>Owner: {{ project.owner.full_name }}</span>
+          </div>
+        </a>
+      {% else %}
+        <p class="empty-state">No projects yet. Use the form to create the first workspace.</p>
+      {% endfor %}
+    </div>
+  </article>
+</section>
+{% endblock %}

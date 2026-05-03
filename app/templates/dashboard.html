@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page-head">
+  <div>
+    <p class="eyebrow">Command center</p>
+    <h1>Dashboard</h1>
+    <p class="lead">A quick read on project load, active work, and overdue items.</p>
+  </div>
+  <a class="primary-button" href="{{ url_for('web.projects') }}">Create project</a>
+</section>
+
+<section class="metrics-grid">
+  <article class="metric-card"><span>Projects</span><strong>{{ summary.project_count }}</strong></article>
+  <article class="metric-card"><span>Tasks</span><strong>{{ summary.task_count }}</strong></article>
+  <article class="metric-card"><span>Active</span><strong>{{ summary.active_task_count }}</strong></article>
+  <article class="metric-card alert"><span>Overdue</span><strong>{{ summary.overdue_count }}</strong></article>
+</section>
+
+<section class="dashboard-grid">
+  <article class="panel dashboard-panel dashboard-projects">
+    <div class="panel-heading">
+      <h2>Projects</h2>
+      <a href="{{ url_for('web.projects') }}">View all</a>
+    </div>
+    <div class="project-list">
+      {% for project in summary.projects %}
+        <a class="project-row" href="{{ url_for('web.project_detail', project_id=project.id) }}">
+          <div>
+            <strong>{{ project.name }}</strong>
+            <p>{{ project.description or 'No description yet.' }}</p>
+          </div>
+          <span>{{ project.tasks|length }} tasks</span>
+        </a>
+      {% else %}
+        <p class="empty-state">No projects yet. Create the first one from the Projects page.</p>
+      {% endfor %}
+    </div>
+  </article>
+
+  <article class="panel dashboard-panel dashboard-recent">
+    <div class="panel-heading">
+      <h2>Recent tasks</h2>
+    </div>
+    <div class="task-stack">
+      {% for task in summary.recent_tasks %}
+        <div class="task-mini">
+          <div>
+            <strong>{{ task.title }}</strong>
+            <p>{{ task.project.name }} · {{ task.status.replace('_', ' ') }}</p>
+          </div>
+          <span class="status-pill status-{{ task.status }}">{{ task.status.replace('_', ' ') }}</span>
+        </div>
+      {% else %}
+        <p class="empty-state">Tasks will appear here once a project starts moving.</p>
+      {% endfor %}
+    </div>
+  </article>
+
+  <article class="panel dashboard-panel dashboard-overdue">
+    <div class="panel-heading">
+      <h2>Overdue tasks</h2>
+    </div>
+    <div class="task-stack">
+      {% for task in summary.overdue_tasks %}
+        <div class="task-mini overdue">
+          <div>
+            <strong>{{ task.title }}</strong>
+            <p>{{ task.project.name }} · Due {{ task.due_date }}</p>
+          </div>
+          <span class="status-pill status-overdue">Overdue</span>
+        </div>
+      {% else %}
+        <p class="empty-state">No overdue tasks right now.</p>
+      {% endfor %}
+    </div>
+  </article>
+</section>
+{% endblock %}

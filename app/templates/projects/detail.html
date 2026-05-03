@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="page-head project-head">
+  <div>
+    <p class="eyebrow">Project detail</p>
+    <h1>{{ project.name }}</h1>
+    <p class="lead">{{ project.description or 'No description yet.' }}</p>
+    <div class="meta-row">
+      <span class="status-pill status-todo">{{ project.tasks|length }} tasks</span>
+      <span class="status-pill status-in_progress">{{ members|length }} team members</span>
+      <span class="status-pill status-done">Owner: {{ project.owner.full_name }}</span>
+    </div>
+  </div>
+  {% if can_manage %}
+    <form method="post" action="{{ url_for('web.delete_project_route', project_id=project.id) }}" onsubmit="return confirm('Delete this project?');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="ghost-button danger">Delete project</button>
+    </form>
+  {% endif %}
+</section>
+
+<section class="project-layout">
+  <article class="panel form-panel">
+    <div class="panel-heading">
+      <h2>Create task</h2>
+    </div>
+    <form method="post" action="{{ url_for('web.create_project_task', project_id=project.id) }}" class="stack-form">
+      {{ task_form.hidden_tag() }}
+      <label>
+        <span>Title</span>
+        {{ task_form.title(class_='input') }}
+      </label>
+      <label>
+        <span>Description</span>
+        {{ task_form.description(class_='input textarea', rows='4') }}
+      </label>
+      <div class="form-grid">
+        <label>
+          <span>Assignee</span>
+          {{ task_form.assignee_id(class_='input') }}
+        </label>
+        <label>
+          <span>Status</span>
+          {{ task_form.status(class_='input') }}
+        </label>
+        <label>
+          <span>Priority</span>
+          {{ task_form.priority(class_='input') }}
+        </label>
+        <label>
+          <span>Due date</span>
+          {{ task_form.due_date(class_='input') }}
+        </label>
+      </div>
+      <button type="submit" class="primary-button">Add task</button>
+    </form>
+  </article>
+
+  <article class="panel form-panel">
+    <div class="panel-heading">
+      <h2>Team</h2>
+    </div>
+    <div class="member-stack">
+      {% for member in members %}
+        <div class="member-row">
+          <div>
+            <strong>{{ member.full_name }}</strong>
+            <p>{{ member.email }}{% if member.id == project.owner_id %} · Owner{% endif %}</p>
+          </div>
+          {% if can_manage and member.id != project.owner_id %}
+            <form method="post" action="{{ url_for('web.remove_project_member', project_id=project.id, user_id=member.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="ghost-button">Remove</button>
+            </form>
+          {% endif %}
+        </div>
+      {% else %}
+        <p class="empty-state">No members yet.</p>
+      {% endfor %}
+    </div>
+
+    {% if can_manage %}
+      <form method="post" action="{{ url_for('web.add_project_member', project_id=project.id) }}" class="stack-form team-form">
+        {{ member_form.hidden_tag() }}
+        <label>
+          <span>Add member by email</span>
+          {{ member_form.email(class_='input') }}
+        </label>
+        <button type="submit" class="primary-button">Add member</button>
+      </form>
+    {% endif %}
+  </article>
+
+  <article class="panel panel-wide">
+    <div class="panel-heading">
+      <h2>Tasks</h2>
+    </div>
+    <div class="task-board">
+      {% for task in project.tasks %}
+        <article class="task-card">
+          <div class="task-card-head">
+            <div>
+              <h3>{{ task.title }}</h3>
+              <p>{{ task.description or 'No description yet.' }}</p>
+            </div>
+            <span class="status-pill status-{{ task.status }}">{{ task.status.replace('_', ' ') }}</span>
+          </div>
+          <form method="post" action="{{ url_for('web.update_task_route', task_id=task.id) }}" class="task-edit-grid">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <label>
+              <span>Title</span>
+              <input class="input" type="text" name="title" value="{{ task.title }}">
+            </label>
+            <label>
+              <span>Assignee</span>
+              <select class="input" name="assignee_id">
+                <option value="0">Unassigned</option>
+                {% for member in members %}
+                  <option value="{{ member.id }}" {% if task.assignee_id == member.id %}selected{% endif %}>{{ member.full_name }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <label>
+              <span>Status</span>
+              <select class="input" name="status">
+                <option value="todo" {% if task.status == 'todo' %}selected{% endif %}>To do</option>
+                <option value="in_progress" {% if task.status == 'in_progress' %}selected{% endif %}>In progress</option>
+                <option value="done" {% if task.status == 'done' %}selected{% endif %}>Done</option>
+              </select>
+            </label>
+            <label>
+              <span>Priority</span>
+              <select class="input" name="priority">
+                <option value="low" {% if task.priority == 'low' %}selected{% endif %}>Low</option>
+                <option value="medium" {% if task.priority == 'medium' %}selected{% endif %}>Medium</option>
+                <option value="high" {% if task.priority == 'high' %}selected{% endif %}>High</option>
+              </select>
+            </label>
+            <label class="wide-field">
+              <span>Description</span>
+              <textarea class="input textarea" name="description" rows="3">{{ task.description or '' }}</textarea>
+            </label>
+            <label>
+              <span>Due date</span>
+              <input class="input" type="date" name="due_date" value="{{ task.due_date.isoformat() if task.due_date else '' }}">
+            </label>
+            <div class="task-actions">
+              <button type="submit" class="primary-button">Save</button>
+            </div>
+          </form>
+          <form method="post" action="{{ url_for('web.delete_task_route', task_id=task.id) }}" onsubmit="return confirm('Delete this task?');" class="delete-task-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="ghost-button">Delete task</button>
+          </form>
+        </article>
+      {% else %}
+        <p class="empty-state">No tasks yet. Use the form above to start tracking work.</p>
+      {% endfor %}
+    </div>
+  </article>
+</section>
+{% endblock %}

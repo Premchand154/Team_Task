@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+{% block content %}
+<section class="auth-layout">
+  <article class="hero-panel">
+    <p class="eyebrow">Team onboarding</p>
+    <h1>Start with a working admin account, then grow the team.</h1>
+    <p class="lead">The first user becomes Admin automatically. Everyone else signs up as a Member.</p>
+    <ul class="feature-list">
+      <li>Single database-backed auth flow</li>
+      <li>Admin-only team controls</li>
+      <li>Member-friendly task updates</li>
+    </ul>
+  </article>
+
+  <article class="panel form-panel">
+    <div class="panel-heading">
+      <p class="eyebrow">Create account</p>
+      <h2>Sign up</h2>
+    </div>
+    <form method="post" class="stack-form">
+      {{ form.hidden_tag() }}
+      <label>
+        <span>Full name</span>
+        {{ form.full_name(class_='input') }}
+        {% for error in form.full_name.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </label>
+      <label>
+        <span>Email</span>
+        {{ form.email(class_='input') }}
+        {% for error in form.email.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </label>
+      <label>
+        <span>Password</span>
+        {{ form.password(class_='input') }}
+        {% for error in form.password.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </label>
+      <label>
+        <span>Confirm password</span>
+        {{ form.confirm_password(class_='input') }}
+        {% for error in form.confirm_password.errors %}<small class="field-error">{{ error }}</small>{% endfor %}
+      </label>
+      <button type="submit" class="primary-button">Create account</button>
+    </form>
+    <p class="muted-link">Already registered? <a href="{{ url_for('auth.login') }}">Login</a></p>
+  </article>
+</section>
+{% endblock %}
