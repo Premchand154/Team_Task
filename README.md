@@ -488,14 +488,4 @@ For schema changes, currently using SQLAlchemy's `db.create_all()` on app startu
 
 MIT License - see LICENSE file for details
 
-## Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit changes (`git commit -m 'Add amazing feature'`)
-4. Push to branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-## Support
-
-For issues, questions, or suggestions, please open a GitHub issue.
